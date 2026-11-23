@@ -1,0 +1,5 @@
+PySide6>=6.6
+
+# Tests only. pytest 9 does not start on Python 3.10, so stay on 8 there.
+pytest>=8,<9
+pytest-qt>=4

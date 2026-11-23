@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="badge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7377e0"/>
+      <stop offset="1" stop-color="#3f42a3"/>
+    </linearGradient>
+  </defs>
+  <rect x="12" y="12" width="232" height="232" rx="54" fill="url(#badge)"/>
+  <!-- two floating cards -->
+  <rect x="58" y="54" width="118" height="84" rx="14" fill="#c9cbf5"/>
+  <rect x="80" y="98" width="122" height="104" rx="16" fill="#ffffff"/>
+  <rect x="80" y="98" width="12" height="104" rx="6" fill="#d64545"/>
+  <path d="M110 150 l18 18 l38 -40" fill="none" stroke="#5b5fc7" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
