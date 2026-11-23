@@ -85,6 +85,55 @@ def test_card_chips(qtbot):
     assert soon.chip_kinds() == ["deadline:soon"]
 
 
+def test_cards_have_the_same_size(qtbot, board, store):
+    p = store.add_project("Alpha")
+    long_title = "A very long title that goes on and on " * 4
+    store.add_todo(Todo(p.id, "Short"))
+    store.add_todo(Todo(p.id, long_title, notes="line one\nline two\nline three", module="m" * 80,
+                        urgency="medium", deadline=(TODAY - timedelta(days=3)).isoformat()))
+    store.add_todo(Todo(p.id, "Mid", module="parser", urgency="low"))
+    for project_id in (p.id, None):                   # with and without the project row
+        board.set_project(project_id)
+        qtbot.waitUntil(lambda: all(c.isVisible() and c.width() > 0 for c in board.cards))
+        assert len({(c.width(), c.height()) for c in board.cards}) == 1
+    long_card = next(c for c in board.cards if c.todo.title == long_title)
+    assert long_card.title.truncated and long_card.title.toolTip() == " ".join(long_title.split())
+    short_card = next(c for c in board.cards if c.todo.title == "Short")
+    assert not short_card.title.truncated and short_card.title.toolTip() == ""
+    assert long_card.module_chip.label.text().endswith("…")
+    assert long_card.notes.truncated                  # three lines of notes, two shown
+    chip_right = long_card.module_chip.geometry().right()
+    assert chip_right <= long_card.chip_row.width()
+
+
+def test_done_card_looks_completed(qtbot):
+    from data.theme import theme_manager
+    theme = theme_manager().theme
+    todo = Todo("p", "Shipped", module="adc", urgency="high",
+                deadline=(TODAY - timedelta(days=5)).isoformat(), done=True,
+                completed=f"{TODAY.isoformat()}T10:00:00")
+    done = TodoCard(todo, today=TODAY)
+    open_card = TodoCard(Todo("p", "Open", urgency="high"), today=TODAY)
+    for card in (done, open_card):
+        qtbot.addWidget(card)
+        card.show()                                   # the stylesheet re-polishes on show
+    # the deadline and urgency give way to when it was finished; no "Overdue"
+    assert done.chip_kinds() == ["completed", "module"]
+    assert done.chips[0].text == "Completed today"
+    assert done.graphicsEffect() is None and open_card.graphicsEffect() is not None
+    assert done._background != theme.card and open_card._background == theme.card
+    assert done._stripe == theme.border and open_card._stripe == theme.high
+    assert done.title.strike and not open_card.title.strike
+    assert done.height() == open_card.height()
+
+
+def test_format_completed():
+    from src.board.todo_card import format_completed
+    assert format_completed(None, TODAY) == "Completed"
+    assert format_completed("2026-11-20T09:30:00", TODAY) == "Completed 20 Nov"
+    assert format_completed("2025-12-31T09:30:00", TODAY) == "Completed 31 Dec 2025"
+
+
 def test_format_deadline():
     assert format_deadline("2026-11-23", "today", TODAY) == "Due today"
     assert format_deadline("2026-11-24", "soon", TODAY) == "Due tomorrow"

@@ -1,5 +1,6 @@
 """The left pane: "All TODOs", then the projects, each with its open-TODO count."""
-from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtCore import QRectF, QSize, Qt, Signal
+from PySide6.QtGui import QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (QHBoxLayout, QLabel, QListView, QListWidget, QListWidgetItem, QMenu,
                                QPushButton, QVBoxLayout, QWidget)
 
@@ -9,6 +10,31 @@ from src.model.store import Store
 
 ALL = None                      # the "All TODOs" entry's project id
 ROW_HEIGHT = 36
+
+
+class DashedButton(QPushButton):
+    """A flat button with a dashed rounded outline. The outline is painted here,
+    half a pixel inside the widget, rather than by the stylesheet: a stylesheet
+    dashed border sits on the widget's edge and is cut off at display scales such
+    as 125 % or 150 %. The stylesheet draws only the background and the text."""
+
+    RADIUS = 6
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        theme = theme_manager().theme
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        # the outline keeps its colour on hover; the stylesheet shades the background
+        pen = QPen(theme.border, 1, Qt.CustomDashLine)
+        pen.setDashPattern([4, 3])
+        pen.setCosmetic(True)
+        painter.setPen(pen)
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5),
+                            self.RADIUS, self.RADIUS)
+        painter.drawPath(path)
+        painter.end()
 
 
 class ProjectRow(QWidget):
@@ -58,7 +84,7 @@ class ProjectPane(QWidget):
         self.list.currentItemChanged.connect(self._on_current)
         self.list.itemDoubleClicked.connect(self._on_double_click)
 
-        self.new_button = QPushButton("  New project")
+        self.new_button = DashedButton("  New project")
         self.new_button.setObjectName("NewProjectButton")
         self.new_button.setCursor(Qt.PointingHandCursor)
         self.new_button.setToolTip("New project (Ctrl+Shift+N)")

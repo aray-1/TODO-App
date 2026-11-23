@@ -29,6 +29,7 @@ class Theme:
     low: QColor
     overdue: QColor       # deadline chips
     due_soon: QColor
+    success: QColor       # completed TODOs: the done check and the Completed chip
 
     def urgency(self, level):
         """The colour of an urgency level, or None when no urgency is set."""
@@ -52,6 +53,7 @@ LIGHT = Theme(
     low=QColor("#3A9D5D"),
     overdue=QColor("#D64545"),
     due_soon=QColor("#C98A00"),
+    success=QColor("#2E9457"),
 )
 
 DARK = Theme(
@@ -71,6 +73,7 @@ DARK = Theme(
     low=QColor("#5CC48A"),
     overdue=QColor("#F07171"),
     due_soon=QColor("#F2C14E"),
+    success=QColor("#5CC48A"),
 )
 
 THEMES = {"light": LIGHT, "dark": DARK}

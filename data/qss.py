@@ -39,10 +39,12 @@ def build_qss(theme) -> str:
     v = {
         "window": t.window.name(), "sidebar": t.sidebar.name(), "card": t.card.name(),
         "border": t.border.name(), "hover": t.hover.name(), "accent": t.accent.name(),
-        "accent_soft": t.accent_soft.name(), "text": t.text.name(), "muted": t.text_muted.name(),
+        "accent_soft": t.accent_soft.name(), "success": t.success.name(),
+        "pressed": (t.hover.darker(106) if t.name == "light" else t.hover.lighter(115)).name(), "text": t.text.name(), "muted": t.text_muted.name(),
         "on_accent": on_accent.name(), "accent_hover": (t.accent.lighter(110) if t.name == "dark"
                                                        else t.accent.darker(110)).name(),
         "check": _icon_url("check", on_accent),
+        "done_check": _icon_url("check", on_color(t.success, (t.card, t.text, t.window))),
         "down": _icon_url("chevron_down", t.text), "up": _icon_url("chevron_up", t.text),
         "down_off": _icon_url("chevron_down", t.text_muted),
         "up_off": _icon_url("chevron_up", t.text_muted),
@@ -103,10 +105,13 @@ QPushButton#PrimaryButton {{
 }}
 QPushButton#PrimaryButton:hover {{ background: {accent_hover}; border-color: {accent_hover}; }}
 QPushButton#PrimaryButton:disabled {{ background: {border}; border-color: {border}; color: {muted}; }}
+/* the dashed outline is painted by DashedButton (src/sidebar/project_pane.py) */
 QPushButton#NewProjectButton {{
-    background: transparent; border: 1px dashed {border}; text-align: left; padding: 6px 10px;
+    background: transparent; border: none; border-radius: 6px; text-align: left; padding: 7px 11px;
 }}
-QPushButton#NewProjectButton:hover {{ background: {hover}; border-color: {accent}; }}
+/* hover: a darker background in the light theme, a lighter one in the dark theme */
+QPushButton#NewProjectButton:hover {{ background: {hover}; }}
+QPushButton#NewProjectButton:pressed {{ background: {pressed}; }}
 QPushButton#QuickDate {{ min-width: 0; padding: 3px 10px; border-radius: 11px; }}
 QPushButton#Segment {{ min-width: 0; padding: 4px 12px; border-radius: 0; margin: 0; }}
 QPushButton#Segment[first="true"] {{ border-top-left-radius: 6px; border-bottom-left-radius: 6px; }}
@@ -156,6 +161,7 @@ QCheckBox::indicator:hover {{ border-color: {accent}; }}
 QCheckBox::indicator:checked {{ background: {accent}; border-color: {accent}; image: {check}; }}
 QCheckBox::indicator:disabled {{ background: {window}; border-color: {border}; }}
 QCheckBox#DoneBox::indicator {{ width: 17px; height: 17px; border-radius: 9px; }}
+QCheckBox#DoneBox::indicator:checked {{ background: {success}; border-color: {success}; image: {done_check}; }}
 
 QPlainTextEdit, QTextEdit {{ background: {card}; border: 1px solid {border}; border-radius: 6px; padding: 2px; }}
 QPlainTextEdit:focus, QTextEdit:focus {{ border-color: {accent}; }}
